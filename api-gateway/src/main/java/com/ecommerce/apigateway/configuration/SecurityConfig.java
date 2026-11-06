@@ -2,7 +2,6 @@ package com.ecommerce.apigateway.configuration;
 
 import com.ecommerce.apigateway.exception.AccessDeniedHandler;
 import com.ecommerce.apigateway.exception.AuthenticationEntryPoint;
-import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.convert.converter.Converter;
@@ -14,8 +13,8 @@ import org.springframework.security.web.server.SecurityWebFilterChain;
 import reactor.core.publisher.Mono;
 
 
+
 @Configuration
-@RequiredArgsConstructor
 public class SecurityConfig {
 
     private final Converter<Jwt, Mono<AbstractAuthenticationToken>>
