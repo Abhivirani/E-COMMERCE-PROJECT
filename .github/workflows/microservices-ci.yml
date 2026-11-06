@@ -96,7 +96,7 @@ jobs:
       SPRING_RABBITMQ_PASSWORD: guest
 
       EUREKA_CLIENT_ENABLED: ${{ matrix.service.eurekaClientEnabled }}
-      SPRING_CLOUD_DISCOVERY_ENABLED: "false"
+      SPRING_CLOUD_DISCOVERY_ENABLED: ${{ matrix.service.name == 'eureka' }}
 
     steps:
       - name: Checkout repository
