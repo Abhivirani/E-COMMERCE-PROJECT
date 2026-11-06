@@ -23,7 +23,7 @@ import java.util.concurrent.Future;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest(properties = {
-        "spring.datasource.url=jdbc:postgresql://localhost:5434/product_testdb",
+        "spring.datasource.url=jdbc:postgresql://localhost:5432/product_testdb",
         "spring.jpa.hibernate.ddl-auto=create-drop",
         "eureka.client.enabled=false",
         "spring.cloud.discovery.enabled=false"

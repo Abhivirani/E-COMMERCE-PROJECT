@@ -25,19 +25,61 @@ on:
 
 jobs:
   build-and-test:
-    name: Build ${{ matrix.service }}
+    name: Build ${{ matrix.service.name }}
     runs-on: ubuntu-latest
+
     strategy:
       fail-fast: false
       matrix:
         service:
-          - ai-assistant
-          - api-gateway
-          - eureka
-          - notification
-          - Order
-          - Product
-          - user
+          - name: ai-assistant
+            database: productdb
+          - name: api-gateway
+            database: productdb
+          - name: eureka
+            database: productdb
+          - name: notification
+            database: productdb
+          - name: Order
+            database: orderdb
+          - name: Product
+            database: productdb
+          - name: user
+            database: userdb
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+      rabbitmq:
+        image: rabbitmq:3-management
+        env:
+          RABBITMQ_DEFAULT_USER: guest
+          RABBITMQ_DEFAULT_PASS: guest
+        ports:
+          - 5672:5672
+
+    env:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/${{ matrix.service.database }}
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+      SPRING_RABBITMQ_HOST: localhost
+      SPRING_RABBITMQ_PORT: 5672
+      SPRING_RABBITMQ_USERNAME: guest
+      SPRING_RABBITMQ_PASSWORD: guest
+      EUREKA_CLIENT_ENABLED: "false"
+      SPRING_CLOUD_DISCOVERY_ENABLED: "false"
 
     steps:
       - name: Checkout repository
@@ -49,10 +91,22 @@ jobs:
           distribution: temurin
           java-version: "17"
           cache: maven
-          cache-dependency-path: ${{ matrix.service }}/pom.xml
+          cache-dependency-path: ${{ matrix.service.name }}/pom.xml
+
+      - name: Create test databases
+        run: |
+          for db in productdb product_testdb orderdb userdb; do
+            psql -h localhost -U postgres -d postgres \
+              -tc "SELECT 1 FROM pg_database WHERE datname = '$db'" |
+              grep -q 1 || \
+              psql -h localhost -U postgres -d postgres \
+              -c "CREATE DATABASE $db"
+          done
+        env:
+          PGPASSWORD: postgres
 
       - name: Build and run tests
-        working-directory: ${{ matrix.service }}
+        working-directory: ${{ matrix.service.name }}
         run: |
           chmod +x ./mvnw
           ./mvnw clean verify
