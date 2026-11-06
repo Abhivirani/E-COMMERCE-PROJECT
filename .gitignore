@@ -1,0 +1,48 @@
+﻿# Environment variables and secrets
+.env
+.env.*
+!.env.example
+
+# Java / Maven build output
+**/target/
+**/*.class
+
+# IDE files
+.idea/
+.vscode/
+*.iml
+
+# Logs
+*.log
+logs/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Local backups
+*.backup
+*.bak
+compose.yaml.backup-*
+keycloak-backup/
+
+# Generated / temporary project files
+running-jar-check/
+temp-gateway-check/
+temp-order-check/
+temp-running-order/
+
+# Large generated JAR files in root
+/order-running.jar
+/running-order.jar
+
+# Local generated mappings
+/order-mappings.json
+
+# Root accidental empty files
+/-Path
+/-Uri
+
+# Generated Maven and test output
+**/effective-pom
+**/test-log.txt

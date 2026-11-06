@@ -1,0 +1,18 @@
+{
+  "properties": [
+    {
+      "name": "rabbitmq.exchange.name",
+      "type": "java.lang.String",
+      "description": "Description for rabbitmq.exchange.name."
+    },
+    {
+      "name": "rabbitmq.queue.order",
+      "type": "java.lang.String",
+      "description": "Description for rabbitmq.queue.order."
+    },
+    {
+      "name": "rabbitmq.routing.order",
+      "type": "java.lang.String",
+      "description": "Description for rabbitmq.routing.order."
+    }
+  ] }
