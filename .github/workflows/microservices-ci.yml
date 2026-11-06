@@ -11,6 +11,7 @@ on:
       - "Product/**"
       - "user/**"
       - ".github/workflows/**"
+
   pull_request:
     paths:
       - "ai-assistant/**"
@@ -21,6 +22,7 @@ on:
       - "Product/**"
       - "user/**"
       - ".github/workflows/**"
+
   workflow_dispatch:
 
 jobs:
@@ -34,18 +36,31 @@ jobs:
         service:
           - name: ai-assistant
             database: productdb
+            eurekaClientEnabled: "false"
+
           - name: api-gateway
             database: productdb
+            eurekaClientEnabled: "false"
+
           - name: eureka
             database: productdb
+            eurekaClientEnabled: "true"
+
           - name: notification
             database: productdb
+            eurekaClientEnabled: "false"
+
           - name: Order
             database: orderdb
+            eurekaClientEnabled: "false"
+
           - name: Product
             database: productdb
+            eurekaClientEnabled: "false"
+
           - name: user
             database: userdb
+            eurekaClientEnabled: "false"
 
     services:
       postgres:
@@ -74,11 +89,13 @@ jobs:
       SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/${{ matrix.service.database }}
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: postgres
+
       SPRING_RABBITMQ_HOST: localhost
       SPRING_RABBITMQ_PORT: 5672
       SPRING_RABBITMQ_USERNAME: guest
       SPRING_RABBITMQ_PASSWORD: guest
-      EUREKA_CLIENT_ENABLED: "false"
+
+      EUREKA_CLIENT_ENABLED: ${{ matrix.service.eurekaClientEnabled }}
       SPRING_CLOUD_DISCOVERY_ENABLED: "false"
 
     steps:
