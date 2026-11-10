@@ -131,7 +131,7 @@ jobs:
         run: |
           chmod +x ./mvnw
           ./mvnw clean verify
-          
+
 
   docker-publish:
     name: Docker Publish ${{ matrix.service.name }}
@@ -227,3 +227,36 @@ jobs:
         shell: powershell
         run: |
           docker compose up -d --no-deps eureka notification product user ai-assistant api-gateway order
+
+      - name: Verify application health
+        working-directory: D:\E-COMMERCE-PROJECT
+        shell: powershell
+        run: |
+          $services = @(
+            "eureka",
+            "product",
+            "user",
+            "order",
+            "notification",
+            "api-gateway",
+            "ai-assistant"
+          )
+
+          $unhealthy = @()
+
+          foreach ($service in $services) {
+            $status = docker inspect --format='{{.State.Health.Status}}' "ecom-$service"
+
+            Write-Host "$service : $status"
+
+            if ($status -ne "healthy") {
+              $unhealthy += $service
+            }
+          }
+
+          if ($unhealthy.Count -gt 0) {
+            Write-Error "Unhealthy services: $($unhealthy -join ', ')"
+            exit 1
+          }
+
+          Write-Host "All application services are healthy."

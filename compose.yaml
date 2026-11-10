@@ -36,16 +36,20 @@ services:
       retries: 10
 
   eureka:
-    build:
-      context: ./eureka
-    container_name: ecom-eureka
-    restart: unless-stopped
-    ports:
-      - "8761:8761"
+      image: ghcr.io/abhivirani/e-commerce-project-eureka:latest
+      container_name: ecom-eureka
+      restart: unless-stopped
+      ports:
+        - "8761:8761"
+      healthcheck:
+        test: [ "CMD-SHELL", "curl -fsS http://localhost:8761/actuator/health || exit 1" ]
+        interval: 15s
+        timeout: 5s
+        retries: 5
+        start_period: 60s
 
   product:
-    build:
-      context: ./Product
+    image: ghcr.io/abhivirani/e-commerce-project-product:latest
     container_name: ecom-product
     restart: unless-stopped
     environment:
@@ -61,11 +65,16 @@ services:
       postgres:
         condition: service_healthy
       eureka:
-        condition: service_started
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -fsS http://localhost:8081/actuator/health || exit 1" ]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 90s
 
   user:
-    build:
-      context: ./user
+    image: ghcr.io/abhivirani/e-commerce-project-user:latest
     container_name: ecom-user
     restart: unless-stopped
     environment:
@@ -85,11 +94,16 @@ services:
       postgres:
         condition: service_healthy
       eureka:
-        condition: service_started
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -fsS http://localhost:8082/actuator/health || exit 1" ]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 90s
 
   order:
-    build:
-      context: ./Order
+    image: ghcr.io/abhivirani/e-commerce-project-order:latest
     container_name: ecom-order
     restart: unless-stopped
     environment:
@@ -112,11 +126,16 @@ services:
       rabbitmq:
         condition: service_healthy
       eureka:
-        condition: service_started
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -fsS http://localhost:8083/actuator/health || exit 1" ]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 120s
 
   notification:
-    build:
-      context: ./notification
+    image: ghcr.io/abhivirani/e-commerce-project-notification:latest
     container_name: ecom-notification
     restart: unless-stopped
     environment:
@@ -131,11 +150,16 @@ services:
       rabbitmq:
         condition: service_healthy
       eureka:
-        condition: service_started
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -fsS http://localhost:8084/actuator/health || exit 1" ]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 60s
 
   api-gateway:
-    build:
-      context: ./api-gateway
+    image: ghcr.io/abhivirani/e-commerce-project-api-gateway:latest
     container_name: ecom-api-gateway
     restart: unless-stopped
     environment:
@@ -146,12 +170,16 @@ services:
       - "8080:8080"
     depends_on:
       eureka:
-        condition: service_started
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -fsS http://localhost:8080/actuator/health || exit 1" ]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 60s
 
   ai-assistant:
-    build:
-      context: ./ai-assistant
-      dockerfile: Dockerfile.ai
+    image: ghcr.io/abhivirani/e-commerce-project-ai-assistant:latest
     container_name: ecom-ai-assistant
     restart: unless-stopped
     environment:
@@ -161,7 +189,13 @@ services:
       - "8085:8085"
     depends_on:
       product:
-        condition: service_started
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -fsS http://localhost:8085/actuator/health || exit 1" ]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 90s
 
 volumes:
   ecom-postgres-data:
