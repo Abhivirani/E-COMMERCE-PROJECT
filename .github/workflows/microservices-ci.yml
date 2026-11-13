@@ -242,20 +242,34 @@ jobs:
             "ai-assistant"
           )
 
-          $unhealthy = @()
+          $maxAttempts = 18
+          $attempt = 0
 
-          foreach ($service in $services) {
-            $status = docker inspect --format='{{.State.Health.Status}}' "ecom-$service"
+          do {
+            $attempt++
+            $unhealthy = @()
 
-            Write-Host "$service : $status"
+            Write-Host "Health check attempt $attempt of $maxAttempts"
 
-            if ($status -ne "healthy") {
-              $unhealthy += $service
+            foreach ($service in $services) {
+              $status = docker inspect --format='{{.State.Health.Status}}' "ecom-$service"
+
+              Write-Host "$service : $status"
+
+              if ($status -ne "healthy") {
+                $unhealthy += $service
+              }
             }
-          }
+
+            if ($unhealthy.Count -gt 0 -and $attempt -lt $maxAttempts) {
+              Write-Host "Waiting 10 seconds for services to become healthy..."
+              Start-Sleep -Seconds 10
+            }
+
+          } while ($unhealthy.Count -gt 0 -and $attempt -lt $maxAttempts)
 
           if ($unhealthy.Count -gt 0) {
-            Write-Error "Unhealthy services: $($unhealthy -join ', ')"
+            Write-Error "Unhealthy services after waiting: $($unhealthy -join ', ')"
             exit 1
           }
 
